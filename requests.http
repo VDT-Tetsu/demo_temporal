@@ -1,0 +1,46 @@
+### Dung voi IntelliJ HTTP Client hoac VS Code REST Client
+@baseUrl = http://localhost:8081
+@tenantId = thay-bang-id-tra-ve
+
+### 1. Tao tenant -> bat dau workflow onboarding
+POST {{baseUrl}}/api/tenants
+Content-Type: application/json
+
+{
+  "name": "Acme Corp",
+  "adminEmail": "admin@acme.io",
+  "plan": "PRO"
+}
+
+### 2. Danh sach tenant
+GET {{baseUrl}}/api/tenants
+
+### 3. Trang thai tenant (doc tu DB H2)
+GET {{baseUrl}}/api/tenants/{{tenantId}}
+
+### 4. Timeline cac lan chuyen trang thai
+GET {{baseUrl}}/api/tenants/{{tenantId}}/events
+
+### 5. Trang thai doc truc tiep tu workflow (Temporal query)
+GET {{baseUrl}}/api/tenants/{{tenantId}}/workflow-state
+
+### 6a. WAITING_APPROVAL -> approve (tiep tuc flow)
+POST {{baseUrl}}/api/tenants/{{tenantId}}/approve
+Content-Type: application/json
+
+{ "actor": "ops-team" }
+
+### 6b. WAITING_APPROVAL -> reject (rollback + FAILED)
+POST {{baseUrl}}/api/tenants/{{tenantId}}/reject
+Content-Type: application/json
+
+{ "reason": "Thong tin khong hop le" }
+
+### 7a. WAITING_RETRY -> chay lai buoc bi loi
+POST {{baseUrl}}/api/tenants/{{tenantId}}/retry
+
+### 7b. WAITING_RETRY -> huy (rollback + FAILED)
+POST {{baseUrl}}/api/tenants/{{tenantId}}/abort
+Content-Type: application/json
+
+{ "reason": "Khong xu ly duoc" }

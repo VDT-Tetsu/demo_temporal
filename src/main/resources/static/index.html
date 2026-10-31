@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Tenant Onboarding</title>
+    <link rel="stylesheet" href="app.css">
+</head>
+<body>
+<header class="topbar">
+    <div class="brand">
+        <span class="logo">◆</span>
+        <div>
+            <h1>Tenant Onboarding</h1>
+            <p class="sub">Business status của flow onboarding chạy trên Temporal</p>
+        </div>
+    </div>
+    <div class="topbar-actions">
+        <span id="conn" class="conn" title="Trạng thái kết nối API">●</span>
+        <a id="temporal-link" class="btn ghost" target="_blank" rel="noopener">Mở Temporal UI ↗</a>
+        <button id="btn-new" class="btn primary">+ Tạo tenant</button>
+    </div>
+</header>
+
+<section class="summary" id="summary" aria-label="Lọc theo business status"></section>
+
+<main class="layout">
+    <section class="panel list-panel">
+        <div class="panel-head">
+            <h2>Danh sách flow</h2>
+            <input id="search" type="search" placeholder="Tìm theo tên, id, workflow id…">
+        </div>
+        <div class="table-wrap">
+            <table class="tenants">
+                <thead>
+                <tr>
+                    <th>Tenant</th>
+                    <th>Business status</th>
+                    <th>Bước hiện tại</th>
+                    <th>Temporal</th>
+                    <th>Cập nhật</th>
+                </tr>
+                </thead>
+                <tbody id="tenant-rows"></tbody>
+            </table>
+            <p id="empty" class="empty" hidden>Chưa có tenant nào. Bấm “+ Tạo tenant” để bắt đầu.</p>
+        </div>
+    </section>
+
+    <section class="panel detail-panel" id="detail">
+        <p class="empty">Chọn một flow ở danh sách để xem chi tiết.</p>
+    </section>
+</main>
+
+<dialog id="create-dialog">
+    <form id="create-form" method="dialog">
+        <h2>Tạo tenant mới</h2>
+        <label>Tên tenant
+            <input name="name" required placeholder="Acme Corp">
+        </label>
+        <label>Email admin
+            <input name="adminEmail" type="email" required placeholder="admin@acme.io">
+        </label>
+        <label>Gói
+            <select name="plan">
+                <option>BASIC</option>
+                <option selected>PRO</option>
+                <option>ENTERPRISE</option>
+            </select>
+        </label>
+        <label>Tỉ lệ lỗi random <span class="hint" id="rate-hint"></span>
+            <input name="failureRate" type="number" min="0" max="1" step="0.1" placeholder="Để trống = mặc định">
+        </label>
+        <div class="dialog-actions">
+            <button type="button" class="btn ghost" id="create-cancel">Huỷ</button>
+            <button type="submit" class="btn primary">Bắt đầu onboarding</button>
+        </div>
+    </form>
+</dialog>
+
+<div id="toasts" class="toasts" aria-live="polite"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

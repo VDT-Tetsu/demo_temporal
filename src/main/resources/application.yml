@@ -1,0 +1,57 @@
+spring:
+  application:
+    name: tenant-onboarding-demo
+  # Doc file .env o thu muc chay app (neu co). Bien moi truong cua OS se override gia tri trong .env
+  config:
+    import: optional:file:.env[.properties]
+
+  datasource:
+    # Luu ra file de du lieu tenant con sau khi restart app (khop voi workflow con chay tren Temporal)
+    url: jdbc:h2:file:${H2_DB_PATH:./data/onboarding};AUTO_SERVER=TRUE
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  temporal:
+    namespace: ${TEMPORAL_NAMESPACE:default}
+    connection:
+      target: ${TEMPORAL_ADDRESS:localhost:7233}
+    workers:
+      - name: onboarding-worker
+        task-queue: ${TEMPORAL_TASK_QUEUE:tenant-onboarding}
+        workflow-classes:
+          - com.demo.onboarding.workflow.TenantOnboardingWorkflowImpl
+        activity-beans:
+          - onboardingActivities
+          - tenantStatusActivities
+
+server:
+  port: ${SERVER_PORT:8081}
+
+onboarding:
+  task-queue: ${TEMPORAL_TASK_QUEUE:tenant-onboarding}
+  # Ti le loi ngau nhien cua moi lan chay activity (0.0 - 1.0)
+  failure-rate: ${ONBOARDING_FAILURE_RATE:0.3}
+  # Thoi gian gia lap moi buoc xu ly: moi lan chay random trong [min, max]
+  step-delay-min: ${ONBOARDING_STEP_DELAY_MIN:15s}
+  step-delay-max: ${ONBOARDING_STEP_DELAY_MAX:30s}
+  # So lan Temporal tu dong retry 1 activity truoc khi bao loi
+  activity-max-attempts: ${ONBOARDING_ACTIVITY_MAX_ATTEMPTS:3}
+  # Thoi gian cho admin approve/reject, het han -> FAILED
+  approval-timeout: ${ONBOARDING_APPROVAL_TIMEOUT:10m}
+  # Thoi gian cho trigger retry/abort khi 1 buoc loi het so lan retry, het han -> FAILED
+  manual-retry-timeout: ${ONBOARDING_MANUAL_RETRY_TIMEOUT:30m}
+  # Link sang Temporal UI tu FE (docker-compose: 8080, CLI dev server: 8233)
+  temporal-ui-url: ${TEMPORAL_UI_URL:http://localhost:8080}
+  temporal-namespace: ${TEMPORAL_NAMESPACE:default}
+
+logging:
+  level:
+    com.demo.onboarding: INFO
